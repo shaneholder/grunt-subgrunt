@@ -6,65 +6,50 @@
  * Licensed under the MIT license.
  */
 
-'use strict';
+'use strict'; /* global grunt */
 
-
-function executeTaskOnModule(task, module, done) {
-	grunt.log.ok('executing ' + task + ' for package ' + module);
-
-	grunt.util.spawn({
-		grunt: true,
-		args: [options.task],
-		opts: {cwd: module, stdio: [0,1,2]}
-	}, function (error, result, code) {
-		if (code === 0 || code === 6) {
-			done();
-		} else {
-			done(false);
-		}
-	});
-}
 
 module.exports = function(grunt) {
 
-  // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
+	function executeTaskOnModule(task, module, done) {
+		grunt.log.ok('executing ' + task + ' for package ' + module);
 
-  grunt.registerMultiTask('subgrunt', 'Execute Grunt on a list of folders.', function() {
-    // Merge task-specific and/or target-specific options with these defaults.
-    var options = this.options({
-      prefix: 'node_modules'
-    }),
-      done = this.async();
+		grunt.util.spawn({
+			grunt: true,
+			args: [task],
+			opts: {cwd: module, stdio: [0,1,2]}
+		}, function (error, result, code) {
+			if (code === 0 || code === 6) {
+				done();
+			} else {
+				done(false);
+			}
+		});
+	}
 
-    // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      var src = f.src.filter(function(moduleDir) {
-        // Warn on and remove invalid source files (if nonull was set).
-        console.log(moduleDir);
-        if (!grunt.file.isDir(moduleDir)) {
-          return false;
-        } else {
-          return true;
-        }
-      }).map(function(moduleDir) {
-        grunt.log.ok('executing ' + options.task + ' for package ' + moduleDir);
+	// Please see the Grunt documentation for more information regarding task
+	// creation: http://gruntjs.com/creating-tasks
 
-        // grunt.util.spawn({
-        //   grunt: true,
-        //   args: [options.task],
-        //   opts: {cwd: moduleDir, stdio: [0,1,2]}
-        // }, function (error, result, code) {
-        //   if (code === 0 || code === 6) {
-        //     done();
-        //   } else {
-        //     done(false);
-        //   }
-        // });       
+	grunt.registerMultiTask('subgrunt', 'Execute Grunt on a list of folders.', function() {
+		// Merge task-specific and/or target-specific options with these defaults.
+		var options = this.options({
+				prefix: 'node_modules',
+				task: 'install'
+			}),
+			done = this.async(),
+			executeOnModule = function (module, done) {
+				executeTaskOnModule(options.task, module, done);
+			};
 
-      });
-
-    });
-  });
-
+		this.files.forEach(function(f) {
+			var modules = f.src.filter(function(moduleDir) {
+					if (grunt.file.isDir(moduleDir) && grunt.file.exists(moduleDir, 'Gruntfile.js')) {
+						return true;
+					} else {
+						return false;
+					}
+				});
+			grunt.util.async.forEachSeries(modules, executeOnModule, done);			
+		});
+	});
 };
