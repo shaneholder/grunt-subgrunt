@@ -31,10 +31,7 @@ module.exports = function(grunt) {
 	// creation: http://gruntjs.com/creating-tasks
 
 	grunt.registerMultiTask('subgrunt', 'Execute Grunt on a list of folders.', function() {
-		// Merge task-specific and/or target-specific options with these defaults.
 		var options = this.options({
-				prefix: 'node_modules',
-				task: 'install'
 			}),
 			done = this.async(),
 			executeOnModule = function (module, done) {

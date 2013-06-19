@@ -1,6 +1,8 @@
 'use strict';
 
-var grunt = require('grunt');
+var grunt = require('grunt'),
+  path = require('path'),
+  subGrunt = grunt.loadTasks('tasks');
 
 /*
   ======== A Handy Little Nodeunit Reference ========
@@ -27,22 +29,11 @@ exports.subgrunt = {
     // setup here if necessary
     done();
   },
-  default_options: function(test) {
+  successfulTask: function(test) {
     test.expect(1);
-
-    var actual = grunt.file.read('tmp/default_options');
-    var expected = grunt.file.read('test/expected/default_options');
-    test.equal(actual, expected, 'should describe what the default behavior is.');
+    var actual = grunt.file.read(path.join(process.cwd(), 'tmp/successfile'));
+    test.equal(actual, 'success', 'should be able to read the file');
 
     test.done();
-  },
-  custom_options: function(test) {
-    test.expect(1);
-
-    var actual = grunt.file.read('tmp/custom_options');
-    var expected = grunt.file.read('test/expected/custom_options');
-    test.equal(actual, expected, 'should describe what the custom option(s) behavior is.');
-
-    test.done();
-  },
+  }
 };

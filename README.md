@@ -1,6 +1,6 @@
 # grunt-subgrunt
 
-> Execute grunt for folders
+> Execute grunt tasks in folders
 
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
